@@ -27,7 +27,7 @@ Construir un sitio **landing page** en Angular que sirva como vitrina comercial 
 - [ ] Formulario de contacto funcional (envía y confirma al usuario)
 - [ ] Lighthouse score ≥ 85 en Performance en móvil
 - [ ] Sin errores de consola en producción
-- [ ] Sitio accesible desde URL pública (GitHub Pages o Vercel)
+- [ ] Sitio accesible desde URL pública en AWS S3 / CloudFront
 - [ ] Responsive en 320px, 768px y 1280px de ancho
 
 ---
@@ -36,16 +36,17 @@ Construir un sitio **landing page** en Angular que sirva como vitrina comercial 
 
 | Elemento | Tecnología |
 |---|---|
-| Framework | Angular 17+ (standalone components) |
-| Lenguaje | TypeScript 5.x |
+| Framework | Angular **17** (standalone components) |
+| Lenguaje | TypeScript 5.2 |
 | Estilos | SCSS + CSS custom properties |
 | Routing | Angular Router (lazy loading por página) |
 | Formularios | Angular Reactive Forms |
 | Formulario de contacto | Formspree (servicio externo gratuito) |
 | Testing | Jasmine + Karma (unit), Playwright (e2e) |
-| Build | Angular CLI (`ng build`) |
+| Build | Angular CLI 17 (`ng build`) |
 | CI/CD | GitHub Actions |
-| Despliegue | GitHub Pages (`angular-cli-ghpages`) |
+| Despliegue | **AWS S3** (static website hosting) + **CloudFront** (CDN + HTTPS) |
+| Infraestructura | AWS CLI v2 |
 | Íconos | Material Symbols (subconjunto mínimo) |
 
 ---
@@ -71,8 +72,9 @@ npm run e2e                   # playwright test
 # Linting
 npm run lint                  # ng lint
 
-# Deploy a GitHub Pages
-npm run deploy                # ng deploy --base-href=/transport-management-landing/
+# Deploy a AWS S3
+npm run deploy                # ng build --configuration=production && aws s3 sync dist/transport-management-landing/browser/ s3://$S3_BUCKET_NAME --delete
+npm run invalidate            # aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"
 ```
 
 ---
@@ -221,7 +223,8 @@ export class HomeComponent {
 | Íconos SVG inline | Evitar librerías pesadas de íconos |
 | Budget de bundle | Configurar `budgets` en `angular.json`: error > 500KB |
 | Tree shaking | Solo importar lo necesario de Angular CDK/Material |
-| Compresión | Gzip/Brotli habilitado en el servidor de despliegue |
+| Compresión | Gzip/Brotli habilitado en CloudFront + headers de caché en S3 |
+| CDN | CloudFront sirve assets desde edge nodes cercanos al usuario |
 
 ---
 
@@ -249,24 +252,62 @@ gh repo create transport-management-landing \
   --description "Landing site para TransportationManagement — TMAGE-1" \
   --clone
 
-# 2. Scaffolding con Angular CLI
+# 2. Scaffolding con Angular 17 CLI
 cd transport-management-landing
-npx @angular/cli@latest new . \
+npx @angular/cli@17 new . \
   --routing \
   --style=scss \
   --standalone \
   --skip-git
 
-# 3. Instalar dependencias adicionales
-npm install angular-cli-ghpages --save-dev
+# 3. Sin dependencias extra de deploy (se usa AWS CLI directamente)
+# Agregar scripts en package.json:
+# "deploy": "ng build --configuration=production && aws s3 sync dist/transport-management-landing/browser/ s3://$S3_BUCKET_NAME --delete"
+# "invalidate": "aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths '/*'"
 
-# 4. Configurar script de deploy en package.json
-# "deploy": "ng deploy --base-href=/transport-management-landing/"
+# 4. Variables de entorno requeridas (en GitHub Actions Secrets, nunca en código):
+# AWS_ACCESS_KEY_ID
+# AWS_SECRET_ACCESS_KEY
+# AWS_REGION (ej. us-east-1)
+# S3_BUCKET_NAME
+# CF_DISTRIBUTION_ID
 
-# 5. Primer commit
+# 5. Configurar S3 bucket para static website hosting
+aws s3 website s3://$S3_BUCKET_NAME \
+  --index-document index.html \
+  --error-document index.html   # SPA: Angular Router maneja el 404
+
+# 6. Primer commit
 git add .
-git commit -m "feat: initial Angular scaffold for TMAGE-1 landing site"
+git commit -m "feat: initial Angular 17 scaffold for TMAGE-1 landing site"
 git push -u origin main
+```
+
+### GitHub Actions — deploy.yml
+
+```yaml
+name: Deploy to AWS S3
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - run: aws s3 sync dist/transport-management-landing/browser/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+      - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CF_DISTRIBUTION_ID }} --paths "/*"
 ```
 
 ---
@@ -286,7 +327,7 @@ git push -u origin main
 - Cambiar el proveedor de despliegue
 
 **Never do:**
-- Hacer commit de claves de API o tokens de Formspree directamente en el código
+- Hacer commit de claves AWS, tokens de Formspree o cualquier credencial en el código (usar GitHub Secrets)
 - Usar `any` en TypeScript sin justificación
 - Agregar librerías CSS pesadas (Bootstrap, Material completo) sin aprobación
 - Saltarse los tests e2e del formulario de contacto
@@ -295,13 +336,15 @@ git push -u origin main
 
 ## Open Questions
 
-1. **Despliegue**: ¿GitHub Pages o Vercel? (afecta la configuración de `base-href`)
-2. **Formulario de contacto**: ¿Tienes cuenta en Formspree o prefieres otro servicio?
-3. **Dominio**: ¿El sitio irá en un dominio propio o en `*.github.io`?
-4. **Idioma**: ¿Solo español o también inglés?
-5. **Colores/branding**: ¿Hay guía de marca o paleta de colores definida?
-6. **Logo**: ¿Ya existe un logo o se crea uno placeholder?
-7. **Analítica**: ¿Se integra Google Analytics u otro servicio desde el inicio?
+1. ~~**Despliegue**: ¿GitHub Pages o Vercel?~~ → **Resuelto**: AWS S3 + CloudFront
+2. ~~**Angular version**~~ → **Resuelto**: Angular **17**
+3. **Formulario de contacto**: ¿Tienes cuenta en Formspree o prefieres otro servicio (SES, SendGrid)?
+4. **Dominio**: ¿El sitio irá en un dominio propio apuntando al CloudFront o se usa la URL de CloudFront directamente?
+5. **AWS Region**: ¿Cuál región de AWS se usará? (ej. `us-east-1`, `sa-east-1` para Suramérica)
+6. **Idioma**: ¿Solo español o también inglés?
+7. **Colores/branding**: ¿Hay guía de marca o paleta de colores definida?
+8. **Logo**: ¿Ya existe un logo o se crea uno placeholder?
+9. **Analítica**: ¿Se integra Google Analytics u otro servicio desde el inicio?
 
 ---
 
