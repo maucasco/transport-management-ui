@@ -53,6 +53,36 @@
         }
       }
     },
+    "/entreprise/authentication/me": {
+      "get": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Get current user profile",
+        "description": "Returns the profile of the authenticated user. Requires a valid Bearer JWT.",
+        "operationId": "me_entreprise_authentication_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or expired token"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/health": {
       "get": {
         "summary": "Health",
@@ -197,6 +227,12 @@
           "type"
         ],
         "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
       }
     }
   }

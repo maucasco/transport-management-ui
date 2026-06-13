@@ -1,9 +1,12 @@
 import logging
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.adapters.inbound.rest.dependencies import get_current_user
 from app.adapters.inbound.rest.schemas import LoginRequest, LoginResponse, UserSchema
+from app.core.domain.entities.user import User
 from app.core.domain.exceptions import InactiveUserError, InvalidCredentialsError
 from app.infrastructure.container import get_authentication_use_case
 from app.infrastructure.database import get_session
@@ -62,3 +65,24 @@ def login(request: LoginRequest, session: Session = Depends(get_session)) -> Log
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
         )
+
+
+@router.get(
+    "/me",
+    response_model=UserSchema,
+    status_code=status.HTTP_200_OK,
+    responses={
+        401: {"description": "Missing, invalid, or expired token"},
+    },
+    summary="Get current user profile",
+    description="Returns the profile of the authenticated user. Requires a valid Bearer JWT.",
+)
+def me(current_user: Annotated[User, Depends(get_current_user)]) -> UserSchema:
+    return UserSchema(
+        id=current_user.id,
+        email=current_user.email,
+        role=current_user.role,
+        company_id=current_user.company_id,
+        first_name=current_user.first_name,
+        last_name=current_user.last_name,
+    )
