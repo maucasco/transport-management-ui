@@ -13,7 +13,20 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/entreprise/authentication", tags=["authentication"])
 
 
-@router.post("/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
+@router.post(
+    "/login",
+    response_model=LoginResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        401: {"description": "Invalid credentials"},
+        403: {"description": "Account is inactive"},
+    },
+    summary="Authenticate a user",
+    description=(
+        "Validates email and password against stored credentials. "
+        "Returns a signed JWT (HS256, 8h expiry) and the user profile on success."
+    ),
+)
 def login(request: LoginRequest, session: Session = Depends(get_session)) -> LoginResponse:
     logger.debug("Login attempt for email=%s", request.email)
     use_case = get_authentication_use_case(session)
