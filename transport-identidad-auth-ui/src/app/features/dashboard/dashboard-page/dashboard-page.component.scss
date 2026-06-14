@@ -1,0 +1,13 @@
+@use '../../../../styles/variables' as *;
+
+.dashboard-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  &__body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+}

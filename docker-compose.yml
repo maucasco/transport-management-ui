@@ -28,5 +28,14 @@ services:
       db:
         condition: service_healthy
 
+  enterprise-api:
+    build:
+      context: ./transportation-enterprise-management-api
+    ports:
+      - "8001:8001"
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+      JWT_EXPIRE_HOURS: 8
+
 volumes:
   pg_data:

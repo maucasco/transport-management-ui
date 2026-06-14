@@ -1,0 +1,63 @@
+@use '../../../../../styles/variables' as *;
+
+.work-area {
+  flex: 1;
+  padding: var(--space-8);
+  overflow-y: auto;
+  background-color: var(--color-neutral-50);
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    max-width: 960px;
+  }
+
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+  }
+
+  &__loads {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  &__skeleton {
+    background: linear-gradient(90deg, var(--color-neutral-200) 25%, var(--color-neutral-50) 50%, var(--color-neutral-200) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-lg);
+
+    &--card {
+      height: 100px;
+      max-width: 240px;
+    }
+
+    &--table {
+      height: 160px;
+    }
+  }
+
+  &__error {
+    padding: var(--space-6);
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-lg);
+    color: var(--color-error);
+    font-size: var(--font-size-sm);
+  }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

@@ -1,0 +1,14 @@
+@use '../../../../styles/variables' as *;
+
+.dash-footer {
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border-color);
+  background-color: var(--color-white);
+
+  &__copy {
+    margin: 0;
+    font-size: var(--font-size-xs);
+    color: var(--color-neutral-400);
+    text-align: center;
+  }
+}

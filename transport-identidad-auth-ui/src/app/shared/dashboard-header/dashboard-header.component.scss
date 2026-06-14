@@ -1,0 +1,101 @@
+@use '../../../styles/variables' as *;
+
+.dash-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  height: var(--navbar-height);
+
+  &__container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    padding-inline: var(--space-6);
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    text-decoration: none;
+    color: var(--color-white);
+
+    &:focus-visible {
+      outline: 2px solid var(--color-white);
+      outline-offset: 4px;
+      border-radius: var(--radius-sm);
+    }
+  }
+
+  &__logo {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  &__brand-name {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  &__user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+    @include mobile {
+      display: none;
+    }
+  }
+
+  &__user-name {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-white);
+    line-height: var(--line-height-tight);
+  }
+
+  &__user-role {
+    font-size: var(--font-size-xs);
+    color: var(--color-primary-light);
+    line-height: var(--line-height-tight);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__logout-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-white);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    white-space: nowrap;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-white);
+      outline-offset: 2px;
+    }
+  }
+}

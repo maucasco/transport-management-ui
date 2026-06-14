@@ -1,0 +1,30 @@
+<section class="loads-section">
+  <h2 class="loads-section__title">{{ title() }}</h2>
+
+  @if (loads().length === 0) {
+    <p class="loads-section__empty">Sin registros</p>
+  } @else {
+    <table class="loads-section__table" [attr.aria-label]="title()">
+      <thead>
+        <tr>
+          <th scope="col">Origen</th>
+          <th scope="col">Destino</th>
+          <th scope="col">Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (load of loads(); track load.id) {
+          <tr>
+            <td>{{ load.origin }}</td>
+            <td>{{ load.destination }}</td>
+            <td>
+              <span class="loads-section__status" [class]="'loads-section__status--' + load.status">
+                {{ load.status }}
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

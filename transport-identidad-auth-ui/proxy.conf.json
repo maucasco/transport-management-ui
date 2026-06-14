@@ -1,4 +1,9 @@
 {
+  "/entreprise/dashboard": {
+    "target": "http://localhost:8001",
+    "secure": false,
+    "logLevel": "debug"
+  },
   "/entreprise": {
     "target": "http://localhost:8000",
     "secure": false,

@@ -1,0 +1,12 @@
+@if (user(); as currentUser) {
+  <div class="dashboard-layout">
+    <app-dashboard-header [user]="currentUser" />
+
+    <div class="dashboard-layout__body">
+      <app-dashboard-sidebar />
+      <app-work-area />
+    </div>
+
+    <app-dashboard-footer />
+  </div>
+}

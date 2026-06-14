@@ -1,0 +1,26 @@
+import logging
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.adapters.inbound.rest.dashboard_router import router as dashboard_router
+from app.infrastructure.settings import settings
+
+logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO))
+
+app = FastAPI(title="transportation-enterprise-management-api", version="0.1.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
+)
+
+app.include_router(dashboard_router)
+
+
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok"}

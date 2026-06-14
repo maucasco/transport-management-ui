@@ -1,0 +1,36 @@
+<main class="work-area" aria-label="Área de trabajo">
+  @if (state() === 'loading') {
+    <div class="work-area__loading" aria-live="polite" aria-busy="true">
+      <div class="work-area__skeleton work-area__skeleton--card"></div>
+      <div class="work-area__skeleton work-area__skeleton--card"></div>
+      <div class="work-area__skeleton work-area__skeleton--table"></div>
+      <div class="work-area__skeleton work-area__skeleton--table"></div>
+    </div>
+  }
+
+  @if (state() === 'error') {
+    <div class="work-area__error" role="alert">
+      <p>No se pudo cargar el resumen. Por favor, recarga la página.</p>
+    </div>
+  }
+
+  @if (state() === 'loaded' && summary(); as data) {
+    <div class="work-area__content">
+      <section class="work-area__cards" aria-label="Resumen financiero">
+        <app-summary-card title="Gastos Ejecutados" [value]="data.gastos_ejecutados" />
+        <app-summary-card title="Viáticos" [value]="data.viaticos" />
+      </section>
+
+      <section class="work-area__loads" aria-label="Cargas">
+        <app-loads-section
+          title="Cargas Transportadas"
+          [loads]="data.cargas_transportadas"
+        />
+        <app-loads-section
+          title="Cargas Asignadas"
+          [loads]="data.cargas_asignadas"
+        />
+      </section>
+    </div>
+  }
+</main>
