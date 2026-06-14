@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "mcc-aidlc-tech": {
+      "source": {
+        "source": "directory",
+        "path": "/data/AI/course/coding-agents/transportation"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "mcc-aidlc-tech-plugin@mcc-aidlc-tech": true
+  }
+}

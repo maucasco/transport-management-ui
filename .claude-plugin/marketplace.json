@@ -1,0 +1,15 @@
+{
+  "name": "mcc-aidlc-tech",
+  "description": "MCC AI-DLC — ciclo controlado de entrega de software asistida por IA",
+  "owner": {
+    "name": "Mauricio Castro",
+    "email": "maucasco@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "mcc-aidlc-tech-plugin",
+      "source": "./.claude-plugin/mcc-aidlc-tech-plugin",
+      "description": "MCC AI-DLC — ciclo controlado de entrega de software asistida por IA"
+    }
+  ]
+}

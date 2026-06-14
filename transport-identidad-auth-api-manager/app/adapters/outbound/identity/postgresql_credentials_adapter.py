@@ -20,15 +20,17 @@ class PostgreSQLCredentialsAdapter:
         model: UserModel | None = self._session.query(UserModel).filter_by(email=email).first()
 
         if model is None:
-            logger.error("Invalid credentials for email=%s — user not found", email)
+            logger.error("Invalid credentials for email=%s", email)
             raise InvalidCredentialsError()
+
+        password_valid = bcrypt.checkpw(password.encode(), model.password_hash.encode())
 
         if not model.is_active:
             logger.error("User inactive: user_id=%s", model.id)
             raise InactiveUserError()
 
-        if not bcrypt.checkpw(password.encode(), model.password_hash.encode()):
-            logger.error("Invalid credentials for email=%s — wrong password", email)
+        if not password_valid:
+            logger.error("Invalid credentials for email=%s", email)
             raise InvalidCredentialsError()
 
         logger.debug("Credentials valid for email=%s", email)
